@@ -1,24 +1,24 @@
-fast_quote_post_location_threshold:
+quick_quote_post_location_threshold:
   type: integer
   default: 3
   description:
     en: "Number of posts back before fast quote enabled."
-fast_quote_remove_prior_quotes:
+quick_quote_remove_prior_quotes:
   type: bool
   default: true
   description:
     en: "Remove all link (inc. pictures) from quotes"
-fast_quote_remove_links:
+quick_quote_remove_links:
   type: bool
   default: true
   description:
     en:  "Remove all prior (nested) quotes"
-fast_quote_remove_contiguous_new_lines:
+quick_quote_remove_contiguous_new_lines:
   type: bool
   default: true
   description:
     en: "Remove unnecessary new lines"
-fast_quote_character_limit:
+quick_quote_character_limit:
   type: integer
   default: 400
   description:

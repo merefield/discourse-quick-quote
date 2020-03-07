@@ -3,7 +3,7 @@ import Composer from "discourse/models/composer";
 import Quote from "discourse/lib/quote";
 
 export default {
-  name: 'fast-quote-edits',
+  name: 'quick-quote-edits',
   initialize(container){
 
     withPluginApi('0.8.12', (api) => {
@@ -25,27 +25,27 @@ export default {
 
             if ((quoteState.buffer == "") || (quoteState.buffer == undefined)) {
               if (post) {
-               if (((topic.highest_post_number + 1) - (post.post_number)) > settings.fast_quote_post_location_threshold) {
+               if (((topic.highest_post_number + 1) - (post.post_number)) > settings.quick_quote_post_location_threshold) {
                  quotedText = Quote.build(post, post.cooked);
-                 if (settings.fast_quote_remove_prior_quotes) {
+                 if (settings.quick_quote_remove_prior_quotes) {
                    quotedText = quotedText.replace(/<aside[\s\S]*<\/aside>/g, '');
                  };
-                 if (settings.fast_quote_remove_links) {
+                 if (settings.quick_quote_remove_links) {
                    quotedText = quotedText.replace(/<a[\s\S]*<\/a>/g, '');
                  };
                  const startOfQuoteText = quotedText.indexOf("]") + 2; // not forgetting the new line char
                  const lengthOfEndQuoteTag = 11 // [/quote] and newline preceeding
                  var startOfExcerpt = startOfQuoteText;
                  var excerpt = "";
-                 if (settings.fast_quote_remove_contiguous_new_lines) {
+                 if (settings.quick_quote_remove_contiguous_new_lines) {
                    excerpt = quotedText.substring(startOfExcerpt, quotedText.length - lengthOfEndQuoteTag)
                    excerpt = excerpt.replace(/\n*\n/g, '');
                    quotedText = quotedText.substring(0,startOfQuoteText) + excerpt + quotedText.substring(quotedText.length - lengthOfEndQuoteTag, quotedText.length);
                  };
-                 if (settings.fast_quote_character_limit) {
-                   if (quotedText.length > settings.fast_quote_character_limit) {
+                 if (settings.quick_quote_character_limit) {
+                   if (quotedText.length > settings.quick_quote_character_limit) {
                      quotedText = quotedText.replace(/<[^>]*>/g, ''); // remove tags because you are splitting text so can't guarantee where
-                     startOfExcerpt = ((quotedText.length-lengthOfEndQuoteTag-settings.fast_quote_character_limit) < startOfQuoteText) ? startOfQuoteText : quotedText.length-settings.fast_quote_character_limit-lengthOfEndQuoteTag-2;
+                     startOfExcerpt = ((quotedText.length-lengthOfEndQuoteTag-settings.quick_quote_character_limit) < startOfQuoteText) ? startOfQuoteText : quotedText.length-settings.quick_quote_character_limit-lengthOfEndQuoteTag-2;
                      quotedText = quotedText.substring(0,startOfQuoteText) + "..." + quotedText.substring(startOfExcerpt, quotedText.length);
                    }
                  };
