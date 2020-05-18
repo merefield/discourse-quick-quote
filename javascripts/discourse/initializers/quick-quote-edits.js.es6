@@ -60,7 +60,6 @@ export default {
             else
             {
               const quotedPost = postStream.findLoadedPost(quoteState.postId);
-
               quotedText = buildQuote(
                 quotedPost,
                 quoteState.buffer,

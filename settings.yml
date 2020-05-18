@@ -7,12 +7,12 @@ quick_quote_remove_links:
   type: bool
   default: true
   description:
-    en: "Remove all link (inc. pictures) from quotes"
+    en: "Remove all links (inc. pictures) from quotes"
 quick_quote_remove_prior_quotes:
   type: bool
   default: true
   description:
-    en:  "Remove all prior (nested) quotes"
+    en: "Remove all prior (nested) quotes"
 quick_quote_remove_contiguous_new_lines:
   type: bool
   default: true
