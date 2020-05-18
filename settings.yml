@@ -3,12 +3,12 @@ quick_quote_post_location_threshold:
   default: 3
   description:
     en: "Number of posts back before fast quote enabled."
-quick_quote_remove_prior_quotes:
+quick_quote_remove_links:
   type: bool
   default: true
   description:
     en: "Remove all link (inc. pictures) from quotes"
-quick_quote_remove_links:
+quick_quote_remove_prior_quotes:
   type: bool
   default: true
   description:
