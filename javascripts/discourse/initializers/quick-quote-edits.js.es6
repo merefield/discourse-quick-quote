@@ -1,6 +1,6 @@
 import { withPluginApi } from 'discourse/lib/plugin-api';
 import Composer from "discourse/models/composer";
-import Quote from "discourse/lib/quote";
+import { buildQuote } from "discourse/lib/quote";
 
 export default {
   name: 'quick-quote-edits',
@@ -26,7 +26,12 @@ export default {
             if ((quoteState.buffer == "") || (quoteState.buffer == undefined)) {
               if (post) {
                if (((topic.highest_post_number + 1) - (post.post_number)) > settings.quick_quote_post_location_threshold) {
-                 quotedText = Quote.build(post, post.cooked);
+
+                quotedText = buildQuote (
+                  post,
+                  post.cooked
+                 );
+
                  if (settings.quick_quote_remove_prior_quotes) {
                    quotedText = quotedText.replace(/<aside[\s\S]*<\/aside>/g, '');
                  };
@@ -55,7 +60,12 @@ export default {
             else
             {
               const quotedPost = postStream.findLoadedPost(quoteState.postId);
-              quotedText = Quote.build(quotedPost, quoteState.buffer);
+
+              quotedText = buildQuote(
+                quotedPost,
+                quoteState.buffer,
+                quoteState.opts
+               );
             };
 
             quoteState.clear();
