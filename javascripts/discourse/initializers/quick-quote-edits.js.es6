@@ -13,10 +13,6 @@ export default {
         actions: {
           // Post related methods
           replyToPost(post) {
-            if (this.currentUser && this.siteSettings.enable_user_tips) {
-              this.currentUser.hideUserTipForever("post_menu");
-            }
-
             const composerController = this.composer;
             const topic = post ? post.get("topic") : this.model;
             const quoteState = this.quoteState;
