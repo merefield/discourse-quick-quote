@@ -45,7 +45,7 @@ export default {
                       );
                     }
                     if (settings.quick_quote_remove_links) {
-                      quotedText = quotedText.replace(/<a[\s\S]*<\/a>/g, "");
+                      quotedText = quotedText.replace(/<a[\s\S]*?<\/a>/g, "");
                     }
                     const startOfQuoteText = quotedText.indexOf("]") + 2; // not forgetting the new line char
                     const lengthOfEndQuoteTag = 11; // [/quote] and newline preceeding
