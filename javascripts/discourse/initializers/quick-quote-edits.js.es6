@@ -5,8 +5,8 @@ import { action } from "@ember/object";
 
 export default {
   name: "quick-quote-edits",
-  initialize(container) {
-    withPluginApi("0.8.12", (api) => {
+  initialize() {
+    withPluginApi((api) => {
       api.modifyClass(
         "controller:topic",
         (Superclass) =>
@@ -28,7 +28,7 @@ export default {
                 return;
               }
 
-              var quotedText = "";
+              let quotedText = "";
 
               if (quoteState.buffer == "" || quoteState.buffer == undefined) {
                 if (post) {
