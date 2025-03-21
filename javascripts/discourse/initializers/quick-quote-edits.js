@@ -1,7 +1,7 @@
-import { withPluginApi } from "discourse/lib/plugin-api";
-import Composer from "discourse/models/composer";
-import { buildQuote } from "discourse/lib/quote";
 import { action } from "@ember/object";
+import { withPluginApi } from "discourse/lib/plugin-api";
+import { buildQuote } from "discourse/lib/quote";
+import Composer from "discourse/models/composer";
 
 export default {
   name: "quick-quote-edits",
@@ -30,7 +30,7 @@ export default {
 
               let quotedText = "";
 
-              if (quoteState.buffer == "" || quoteState.buffer == undefined) {
+              if (quoteState.buffer === "" || quoteState.buffer === undefined) {
                 if (post) {
                   if (
                     topic.highest_post_number + 1 - post.post_number >
@@ -49,8 +49,8 @@ export default {
                     }
                     const startOfQuoteText = quotedText.indexOf("]") + 2; // not forgetting the new line char
                     const lengthOfEndQuoteTag = 11; // [/quote] and newline preceeding
-                    var startOfExcerpt = startOfQuoteText;
-                    var excerpt = "";
+                    let startOfExcerpt = startOfQuoteText;
+                    let excerpt = "";
                     if (settings.quick_quote_remove_contiguous_new_lines) {
                       excerpt = quotedText.substring(
                         startOfExcerpt,
