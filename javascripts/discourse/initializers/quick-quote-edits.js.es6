@@ -1,6 +1,7 @@
 import { withPluginApi } from "discourse/lib/plugin-api";
 import Composer from "discourse/models/composer";
 import { buildQuote } from "discourse/lib/quote";
+import { action } from "@ember/object";
 
 const PLUGIN_ID = "discourse-quick-quote";
 
@@ -8,11 +9,12 @@ export default {
   name: "quick-quote-edits",
   initialize(container) {
     withPluginApi("0.8.12", (api) => {
-      api.modifyClass("controller:topic", {
-        pluginId: PLUGIN_ID,
-        actions: {
-          // Post related methods
-          replyToPost(post) {
+      api.modifyClass(
+        "controller:topic",
+        (Superclass) =>
+          class extends Superclass {
+            @action
+            replyToPost(post) {
             const composerController = this.composer;
             const topic = post ? post.get("topic") : this.model;
             const quoteState = this.quoteState;
@@ -127,11 +129,11 @@ export default {
               }
 
               composerController.open(opts);
+              }
+              return false;
             }
-            return false;
-          },
-        },
-      });
+          }
+      );
     });
   },
 };
