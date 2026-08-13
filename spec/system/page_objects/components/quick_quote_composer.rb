@@ -18,6 +18,10 @@ module PageObjects
       def has_quote_paragraphs?(count:)
         has_css?("#reply-control .d-editor-preview aside.quote blockquote p", count:)
       end
+
+      def has_quote_without_trailing_whitespace?
+        within("#reply-control") { has_field?(class: "d-editor-input", with: %r{\S\n\[/quote\]}) }
+      end
     end
   end
 end

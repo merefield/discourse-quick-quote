@@ -34,7 +34,7 @@ function prepareQuoteHtml(cooked) {
     return excerpt.innerHTML;
   }
 
-  return template.innerHTML;
+  return template.innerHTML.trim();
 }
 
 export default apiInitializer((api) => {

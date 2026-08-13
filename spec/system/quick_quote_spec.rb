@@ -7,12 +7,7 @@ RSpec.describe "Quick quote" do
 
   fab!(:user, :active_user)
   fab!(:topic) { Fabricate(:topic, user:) }
-  fab!(:old_post) do
-    Fabricate(
-      :post,
-      topic:,
-      user:,
-      raw: <<~MARKDOWN,
+  fab!(:old_post) { Fabricate(:post, topic:, user:, raw: <<~MARKDOWN) }
         This beginning should be truncated because it is too old.
 
         [quote="nested-user, post:99, topic:99"]
@@ -23,30 +18,17 @@ RSpec.describe "Quick quote" do
 
         The useful ending stays in the quick quote.
       MARKDOWN
-    )
-  end
-  fab!(:paragraph_post) do
-    Fabricate(
-      :post,
-      topic:,
-      user:,
-      raw: <<~MARKDOWN,
+  fab!(:paragraph_post) { Fabricate(:post, topic:, user:, raw: <<~MARKDOWN) }
         The first paragraph keeps its inline **formatting**.
 
         The second paragraph follows it.
       MARKDOWN
-    )
-  end
   fab!(:recent_posts) { Fabricate.times(4, :post, topic:, user:) }
 
   let(:composer) { PageObjects::Components::QuickQuoteComposer.new }
   let(:old_post_component) { PageObjects::Components::Post.new(old_post.post_number) }
-  let(:paragraph_post_component) do
-    PageObjects::Components::Post.new(paragraph_post.post_number)
-  end
-  let(:recent_post_component) do
-    PageObjects::Components::Post.new(recent_posts.last.post_number)
-  end
+  let(:paragraph_post_component) { PageObjects::Components::Post.new(paragraph_post.post_number) }
+  let(:recent_post_component) { PageObjects::Components::Post.new(recent_posts.last.post_number) }
 
   before do
     theme.update_setting(:quick_quote_character_limit, 48)
@@ -82,9 +64,10 @@ RSpec.describe "Quick quote" do
     paragraph_post_component.reply
 
     expect(composer).to have_quote(
-      "The first paragraph keeps its inline formatting. The second paragraph follows it."
+      "The first paragraph keeps its inline formatting. The second paragraph follows it.",
     )
     expect(composer).to have_quote_paragraphs(count: 1)
+    expect(composer).to have_quote_without_trailing_whitespace
   end
 
   it "keeps quoted paragraphs separate when newline removal is disabled" do
