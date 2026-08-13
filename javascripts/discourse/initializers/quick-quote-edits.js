@@ -1,140 +1,67 @@
 import { action } from "@ember/object";
-import { withPluginApi } from "discourse/lib/plugin-api";
-import { buildQuote } from "discourse/lib/quote";
-import Composer from "discourse/models/composer";
+import { apiInitializer } from "discourse/lib/api";
 
-export default {
-  name: "quick-quote-edits",
-  initialize() {
-    withPluginApi((api) => {
-      api.modifyClass(
-        "controller:topic",
-        (Superclass) =>
-          class extends Superclass {
-            @action
-            replyToPost(post) {
-              const composerController = this.composer;
-              const topic = post ? post.get("topic") : this.model;
-              const quoteState = this.quoteState;
-              const postStream = this.get("model.postStream");
+function collapseParagraphBreaks(content) {
+  for (const paragraph of content.querySelectorAll("p")) {
+    paragraph.replaceWith(...paragraph.childNodes, " ");
+  }
+}
 
-              this.appEvents.trigger("page:compose-reply", topic);
+function prepareQuoteHtml(cooked) {
+  const template = document.createElement("template");
+  template.innerHTML = cooked;
 
-              if (
-                !postStream ||
-                !topic ||
-                !topic.get("details.can_create_post")
-              ) {
-                return;
-              }
+  if (settings.quick_quote_remove_prior_quotes) {
+    template.content
+      .querySelectorAll("aside.quote")
+      .forEach((quote) => quote.remove());
+  }
 
-              let quotedText = "";
+  if (settings.quick_quote_remove_links) {
+    template.content.querySelectorAll("a").forEach((link) => link.remove());
+  }
 
-              if (quoteState.buffer === "" || quoteState.buffer === undefined) {
-                if (post) {
-                  if (
-                    topic.highest_post_number + 1 - post.post_number >
-                    settings.quick_quote_post_location_threshold
-                  ) {
-                    quotedText = buildQuote(post, post.cooked);
+  if (settings.quick_quote_remove_contiguous_new_lines) {
+    collapseParagraphBreaks(template.content);
+  }
 
-                    if (settings.quick_quote_remove_prior_quotes) {
-                      quotedText = quotedText.replace(
-                        /<aside[\s\S]*<\/aside>/g,
-                        ""
-                      );
-                    }
-                    if (settings.quick_quote_remove_links) {
-                      quotedText = quotedText.replace(/<a[\s\S]*?<\/a>/g, "");
-                    }
-                    const startOfQuoteText = quotedText.indexOf("]") + 2; // not forgetting the new line char
-                    const lengthOfEndQuoteTag = 11; // [/quote] and newline preceeding
-                    let startOfExcerpt = startOfQuoteText;
-                    let excerpt = "";
-                    if (settings.quick_quote_remove_contiguous_new_lines) {
-                      excerpt = quotedText.substring(
-                        startOfExcerpt,
-                        quotedText.length - lengthOfEndQuoteTag
-                      );
-                      excerpt = excerpt.replace(/\n*\n/g, "");
-                      quotedText =
-                        quotedText.substring(0, startOfQuoteText) +
-                        excerpt +
-                        quotedText.substring(
-                          quotedText.length - lengthOfEndQuoteTag,
-                          quotedText.length
-                        );
-                    }
-                    if (settings.quick_quote_character_limit) {
-                      if (
-                        quotedText.length > settings.quick_quote_character_limit
-                      ) {
-                        quotedText = quotedText.replace(/<[^>]*>/g, ""); // remove tags because you are splitting text so can't guarantee where
-                        startOfExcerpt =
-                          quotedText.length -
-                            lengthOfEndQuoteTag -
-                            settings.quick_quote_character_limit <
-                          startOfQuoteText
-                            ? startOfQuoteText
-                            : quotedText.length -
-                              settings.quick_quote_character_limit -
-                              lengthOfEndQuoteTag -
-                              2;
-                        quotedText =
-                          quotedText.substring(0, startOfQuoteText) +
-                          "..." +
-                          quotedText.substring(
-                            startOfExcerpt,
-                            quotedText.length
-                          );
-                      }
-                    }
-                  }
-                }
-              } else {
-                const quotedPost = postStream.findLoadedPost(quoteState.postId);
-                quotedText = buildQuote(
-                  quotedPost,
-                  quoteState.buffer,
-                  quoteState.opts
-                );
-              }
+  const text = template.content.textContent?.trim() ?? "";
+  const characterLimit = settings.quick_quote_character_limit;
 
-              quoteState.clear();
+  if (characterLimit > 0 && text.length > characterLimit) {
+    const excerpt = document.createElement("div");
+    excerpt.textContent = `...${text.slice(-characterLimit)}`;
+    return excerpt.innerHTML;
+  }
 
-              if (
-                composerController.get("model.topic.id") === topic.get("id") &&
-                composerController.get("model.action") === Composer.REPLY
-              ) {
-                composerController.set("model.post", post);
-                composerController.set("model.composeState", Composer.OPEN);
-                this.appEvents.trigger(
-                  "composer:insert-block",
-                  quotedText.trim()
-                );
-              } else {
-                const opts = {
-                  action: Composer.REPLY,
-                  draftKey: topic.get("draft_key"),
-                  draftSequence: topic.get("draft_sequence"),
-                };
+  return template.innerHTML;
+}
 
-                if (quotedText) {
-                  opts.quote = quotedText;
-                }
+export default apiInitializer((api) => {
+  api.modifyClass(
+    "controller:topic",
+    (Superclass) =>
+      class extends Superclass {
+        @action
+        replyToPost(post) {
+          const topic = post?.topic ?? this.model;
+          const postStream = this.model?.postStream;
+          const quoteState = this.quoteState;
+          const distanceFromEnd =
+            topic?.highest_post_number + 1 - post?.post_number;
 
-                if (post && post.get("post_number") !== 1) {
-                  opts.post = post;
-                } else {
-                  opts.topic = topic;
-                }
-
-                composerController.open(opts);
-              }
-              return false;
-            }
+          if (
+            postStream &&
+            topic?.details?.can_create_post &&
+            quoteState.postId === null &&
+            distanceFromEnd > settings.quick_quote_post_location_threshold
+          ) {
+            const quoteHtml = prepareQuoteHtml(post.cooked);
+            quoteState.selected(post.id, null, {}, quoteHtml, post.cooked);
           }
-      );
-    });
-  },
-};
+
+          return super.replyToPost(post);
+        }
+      }
+  );
+});

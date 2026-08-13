@@ -1,6 +1,13 @@
 {
   "name": "Quick Quote",
+  "component": true,
+  "authors": "Robert Barrow",
   "about_url": "https://meta.discourse.org/t/quick-quote-theme-component/143621",
   "license_url": "https://github.com/merefield/discourse-quick-quote/blob/master/LICENSE",
-  "component": true
+  "learn_more": "https://meta.discourse.org/t/quick-quote-theme-component/143621",
+  "theme_version": "1.0.0",
+  "minimum_discourse_version": null,
+  "maximum_discourse_version": null,
+  "assets": {},
+  "modifiers": {}
 }
